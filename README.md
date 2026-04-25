@@ -30,9 +30,9 @@ botanica/
  README.md
 
  devices/                        # MicroPython code for each ESP32
-    esp32_1/
+    1/
        main.py                 # Node 1 — plants 1–5 + central dashboard
-    esp32_2/
+    2/
         main.py                 # Node 2 — plants 6–10, exposes /data
 
  config/

@@ -1,0 +1,60 @@
+services:
+  nanomq:
+    image: emqx/nanomq:latest
+    container_name: nanomq
+    restart: always
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+    volumes:
+      - ./nanomq.conf:/etc/nanomq.conf
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: always
+    ports:
+      - "1880:1880"
+    volumes:
+      - nodered_data:/data
+    depends_on:
+      - nanomq
+      - influxdb
+    environment:
+      - TZ=America/Mexico_City
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: always
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USER}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - TZ=America/Mexico_City
+
+volumes:
+  nodered_data:
+  influxdb_data:
+  grafana_data:
